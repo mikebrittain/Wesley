@@ -155,10 +155,11 @@ sub compressJPG
 
     # Run Progressive JPEG and Huffman table optimizations, then inspect
     # which was best.
-    `$jpegtran_path -copy none -optimize $_ > $_.opt`; 
+
+    `$jpegtran_path -copy none -optimize "$_" > "$_.opt"`; 
     my $opt_size = -s "$_.opt";
 
-    `$jpegtran_path -copy none -progressive $_ > $_.prog`;
+    `$jpegtran_path -copy none -progressive "$_" > "$_.prog"`; 
     my $prog_size = -s "$_.prog";
 
     if ($opt_size && $opt_size < $orig_size && $opt_size <= $prog_size) {
@@ -205,7 +206,7 @@ sub compressPNG
     print "Inspecting $fullname\n";
 
     # Run pngcrush
-    `$pngcrush_path -rem alla -reduce -brute $_ $_.crush`;
+    `$pngcrush_path -rem alla -reduce -brute "$_" "$_.crush"`;
     my $crush_size = -s "$_.crush";
 
     if ($crush_size && $crush_size < $orig_size) {
@@ -235,7 +236,7 @@ sub compressGIF
 
     print "Inspecting $fullname\n";
 
-    `$gifsicle_path --no-warnings --no-comments --optimize=2 $_ > $_.gifsicle`;
+    `$gifsicle_path --no-warnings --no-comments --optimize=2 "$_" > "$_.gifsicle"`;
     my $gifsicle_size = -s "$_.gifsicle";
 
     if ($gifsicle_size && $gifsicle_size < $orig_size) {
@@ -262,7 +263,7 @@ sub comparePNG
     my $fullname = $File::Find::dir . '/' . $_;
 
     # Only try converting static GIFs.
-    my $type = `$identify_path -format %m $_`;
+    my $type = `$identify_path -format %m "$_"`;
     chomp $type;
 
     if ($type eq 'GIF') {
@@ -270,9 +271,9 @@ sub comparePNG
         print "Considering conversion to PNG: $fullname\n";
 
         # Try converting to PNG and crush if possible.
-        `$convert_path $_ $_.try.png`;
+        `$convert_path "$_" "$_.try.png"`;
         if ($pngcrush_path) {
-            `$pngcrush_path -rem alla -reduce -brute $_.try.png $_.try.crush`;
+            `$pngcrush_path -rem alla -reduce -brute "$_.try.png" "$_.try.crush"`;
             $png_size = -s "$_.try.crush";
         } else {
             $png_size = -s "$_.try.png";
@@ -297,6 +298,7 @@ sub comparePNG
         }
     }
 }
+
 
 # Read search path from command line
 sub readInput
